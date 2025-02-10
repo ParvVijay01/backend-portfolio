@@ -4,9 +4,17 @@ const Photo = require('../models/photo'); // Import the Photo model
 const Category = require('../models/category'); // Import the Category model
 const router = express.Router();
 
-// Multer setup for in-memory storage
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+// Multer Storage (Uploads Folder)
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // Save files in 'uploads' directory
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname); // Unique filename
+  },
+});
+
+const upload = multer({ storage });
 
 // Create a photo and link it to a category
 router.post('/', upload.single('file'), async (req, res) => {
@@ -25,13 +33,11 @@ router.post('/', upload.single('file'), async (req, res) => {
     }
 
     // Create a new photo
+    const image =  `/uploads/${req.file.filename}`,
     const newPhoto = new Photo({
       title,
       category: categoryId,
-      image: {
-        data: req.file.buffer, // Store the image as a buffer
-        contentType: req.file.mimetype, // Store the MIME type (e.g., 'image/jpeg')
-      },
+      image: image
     });
 
     // Save the photo to the database

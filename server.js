@@ -20,6 +20,7 @@ app.use(bodyParser.json());
 app.use('/api/categories', require('./routes/categoryRoutes'));
 app.use('/api/photos', require('./routes/photoRoutes'));
 app.use('/api/contact', require('./routes/messageRoutes'));
+app.use("/uploads", express.static("uploads"));
 
 // Start server
 const PORT = process.env.PORT || 5000;

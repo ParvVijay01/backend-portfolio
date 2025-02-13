@@ -1,13 +1,21 @@
 const express = require('express');
 const multer = require('multer');
+const fs = require('fs');
 const Photo = require('../models/photo'); // Import the Photo model
 const Category = require('../models/category'); // Import the Category model
+const path = require('path');
 const router = express.Router();
+
+// Ensure the 'uploads' directory exists
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
 
 // Multer Storage (Uploads Folder)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Save files in 'uploads' directory
+    cb(null, uploadsDir); // Save files in 'uploads' directory
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname); // Unique filename
@@ -19,7 +27,7 @@ const upload = multer({ storage });
 // Create a photo and link it to a category
 router.post('/', upload.single('file'), async (req, res) => {
   try {
-    const { title, categoryId } = req.body;
+    const { title, categoryId, description } = req.body;
 
     // Check if category exists
     const category = await Category.findById(categoryId);
@@ -33,10 +41,11 @@ router.post('/', upload.single('file'), async (req, res) => {
     }
 
     // Create a new photo
-    const image =  `/uploads/${req.file.filename}`,
+    const image =  `/uploads/${req.file.filename}`;
     const newPhoto = new Photo({
       title,
       category: categoryId,
+      description,
       image: image
     });
 
@@ -55,7 +64,7 @@ router.get('/', async (req, res) => {
     const photos = await Photo.find().populate('category', 'name'); // Fetch photos with category name
     res.status(200).json(photos);
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching photos:', err);
     res.status(500).json({ message: 'Failed to fetch photos' });
   }
 });
@@ -75,7 +84,7 @@ router.get('/category/:categoryId', async (req, res) => {
     const photos = await Photo.find({ category: categoryId });
     res.status(200).json(photos);
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching photos by category:', err);
     res.status(500).json({ message: 'Failed to fetch photos' });
   }
 });

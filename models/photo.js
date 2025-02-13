@@ -8,10 +8,15 @@ const PhotoSchema = new mongoose.Schema({
     ref: 'Category', // Reference the Category model
     required: true,
   },
+  description: {
+    type: String, required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-module.exports = mongoose.model('Photo', PhotoSchema);
+const Photos = mongoose.model('Photo', PhotoSchema);
+
+module.exports = Photos;

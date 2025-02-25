@@ -51,7 +51,7 @@ router.post('/', upload.single('file'), async (req, res) => {
 
     // Save the photo to the database
     await newPhoto.save();
-    res.status(201).json({ message: 'Photo uploaded successfully', photo: newPhoto });
+    res.status(201).json({success: true, message: "Photo retrieved successfully.", newPhoto  });
   } catch (err) {
     console.error('Error uploading photo:', err); // Log the error to the console
     res.status(500).json({ message: 'Failed to upload photo', error: err.message });
